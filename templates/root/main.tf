@@ -8,28 +8,33 @@ variable "tape" {
 
 variable "tape_ptr" {
   type = number
+  default = 0
 }
 
 variable "code_ptr" {
   type = number
+  default = 0
 }
 
 variable "input" {
   type = string
+  default = ""
 }
 
 variable "output" {
   type = string
+  default = ""
 }
 
-variable "bracket_lut" {
-  type = map(number)
+module "bracket_lut" {
+  source = "./modules/bracket_lut"
+  code   = var.code
 }
 
 module "interpreter" {
   source      = "./modules/interpreter"
   code        = var.code
-  bracket_lut = var.bracket_lut
+  bracket_lut = module.bracket_lut.lut
   code_ptr    = var.code_ptr
   input       = var.input
   output      = var.output
@@ -39,4 +44,8 @@ module "interpreter" {
 
 output "results" {
   value = module.interpreter
+}
+
+output "bracket_lut" {
+  value = module.bracket_lut.lut
 }
