@@ -7,22 +7,22 @@ variable "tape" {
 }
 
 variable "tape_ptr" {
-  type = number
+  type    = number
   default = 0
 }
 
 variable "code_ptr" {
-  type = number
+  type    = number
   default = 0
 }
 
 variable "input" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "output" {
-  type = string
+  type    = string
   default = ""
 }
 
@@ -47,5 +47,5 @@ output "results" {
 }
 
 output "bracket_lut" {
-  value = module.bracket_lut.lut
+  value = module.bracket_lut
 }

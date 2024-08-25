@@ -11,11 +11,13 @@ main = runFileActions $ do
 mkRoot :: FilePath -> FileActionF ()
 mkRoot dirName = do
   entryFile <- FileDesc "main.tf" <$> useTemplateFile "root/main.tf" []
+  
+  dirs <- sequence
+    [ mkTemplateModule "interpreter" 2000
+    , mkTemplateModule "bracket_lut" 20
+    ]
 
-  interpreterModule <- mkTemplateModule "interpreter" 2000
-  bracketLUTModule  <- mkTemplateModule "bracket_lut" 20
-
-  createDir $ DirDesc dirName [entryFile] [interpreterModule, bracketLUTModule]
+  createDir $ DirDesc dirName [entryFile] dirs
 
 mkTemplateModule :: FilePath -> Int -> FileActionF DirDesc
 mkTemplateModule name size = do
@@ -26,7 +28,7 @@ mkTemplateModule name size = do
 
   contentEnd <- useTemplateFile (name <> "/end.tf") [("prev_index", show size)]
 
-  let content = T.concat $ concat [[contentStart], contentIntermediate, [contentEnd]]
+  let content = T.intercalate "\n" $ concat [[contentStart], contentIntermediate, [contentEnd]]
       mainFile = FileDesc "main.tf" content
 
   pure $ DirDesc ("modules/" <> name) [mainFile] []
