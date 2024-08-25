@@ -12,7 +12,7 @@ mkRoot :: FilePath -> FileActionF ()
 mkRoot dirName = do
   entryFile <- FileDesc "main.tf" <$> useTemplateFile "root/main.tf" []
 
-  interpreterModules <- mkInterpreterModules 3024
+  interpreterModules <- mkInterpreterModules 2000
 
   createDir $ DirDesc dirName [entryFile] [interpreterModules]
 

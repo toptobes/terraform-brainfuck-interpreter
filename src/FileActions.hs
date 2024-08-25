@@ -52,7 +52,7 @@ runCreateDir desc next = go "" [desc] >> next where
 
 runDeleteDir :: FilePath -> IO a -> IO a
 runDeleteDir name next = do
-  -- removePathForcibly name
+  removePathForcibly name
   next
 
 printFileActions :: FileActionF a -> IO a

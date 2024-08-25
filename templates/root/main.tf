@@ -26,7 +26,7 @@ variable "bracket_lut" {
   type = map(number)
 }
 
-module "i" {
+module "interpreter" {
   source      = "./modules/interpreter"
   code        = var.code
   bracket_lut = var.bracket_lut
@@ -38,5 +38,5 @@ module "i" {
 }
 
 output "results" {
-  value = module.i
+  value = module.interpreter
 }
