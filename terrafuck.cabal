@@ -17,6 +17,8 @@ executable terrafuck
   main-is: Main.hs
   other-modules:
       FileActions
+      Options
+      TFGen
       Paths_terrafuck
   autogen-modules:
       Paths_terrafuck
@@ -46,6 +48,7 @@ executable terrafuck
     , directory
     , filepath
     , free
+    , optparse-applicative
     , relude >=1.2.0.0
   mixins:
       base hiding (Prelude)
