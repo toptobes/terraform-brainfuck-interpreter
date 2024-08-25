@@ -37,7 +37,7 @@ runFileActions = iterM go where
 
 runUseTemplateFile :: FilePath -> [(Text, Text)] -> (Text -> IO a) -> IO a
 runUseTemplateFile fp vars next = do
-  content <- readFileText $ "templates/" </> fp
+  (decodeUtf8 -> content) <- readFileBS $ "templates/" </> fp
   next $ foldl' (\content' (k, v) -> T.replace ("\\{" <> k <>"}") v content') content vars
 
 runCreateDir :: DirDesc -> IO a -> IO a
