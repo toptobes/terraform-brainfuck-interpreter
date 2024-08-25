@@ -17,6 +17,10 @@
         ];
       });
 
+      # packages = {
+      #   free.source = "5.2";
+      # };
+
       devShell = {
         hlsCheck.enable = false;
       };

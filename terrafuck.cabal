@@ -16,6 +16,7 @@ build-type:         Simple
 executable terrafuck
   main-is: Main.hs
   other-modules:
+      FileActions
       Paths_terrafuck
   autogen-modules:
       Paths_terrafuck
@@ -42,6 +43,9 @@ executable terrafuck
   ghc-options: -Wall -Wno-unrecognised-pragmas -freduction-depth=0
   build-depends:
       base >=4.16.4.0
+    , directory
+    , filepath
+    , free
     , relude >=1.2.0.0
   mixins:
       base hiding (Prelude)

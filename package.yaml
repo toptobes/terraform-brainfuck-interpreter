@@ -41,6 +41,9 @@ dependencies:
     mixin:
       - (Relude as Prelude)
       - ""
+  - directory
+  - filepath
+  - free
 
 executables:
   terrafuck:

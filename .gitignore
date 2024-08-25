@@ -16,3 +16,6 @@ result-*
 
 # direnv
 .direnv
+
+# out
+out
