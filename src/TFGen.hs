@@ -37,9 +37,9 @@ mkTemplateModule name size = do
   contentStart <- useTemplateFile (name <> "/start.tf") []
 
   contentIntermediate <- forM [1..size] $ \i -> do
-    useTemplateFile (name <> "/step.tf") [("index", show i), ("prev_index", show $ i - 1)]
+    useTemplateFile (name <> "/step.tf") [("i", show i), ("pi", show $ i - 1)]
 
-  contentEnd <- useTemplateFile (name <> "/end.tf") [("prev_index", show size)]
+  contentEnd <- useTemplateFile (name <> "/end.tf") [("pi", show size)]
 
   let content = T.intercalate "\n" $ concat [[generationNotice, contentStart], contentIntermediate, [contentEnd]]
       mainFile = FileDesc "main.tf" content

@@ -15,8 +15,9 @@ variable "bracket_lut" {}
 locals {
   ascii_lookup = { for i in range(0, 255) : jsondecode(format("\"\\u%04x\"", i)) => i }
 
+  input_0 = var.input
+
   iter_0 = {
-    input       = var.input
     output      = var.output
     tape        = var.tape
     tape_ptr    = var.tape_ptr

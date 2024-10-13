@@ -38,12 +38,12 @@ locals {
 
 module "bracket_lut" {
   source = "./modules/bracket_lut"
-  code   = local.code
+  code   = local.groups
 }
 
 module "interpreter" {
   source      = "./modules/interpreter"
-  code        = local.code
+  code        = local.groups
   bracket_lut = module.bracket_lut.lut
   code_ptr    = var.code_ptr
   input       = var.input
@@ -64,7 +64,7 @@ output "tape" {
 
 output "debug" {
   value = {
-    final_input    = module.interpreter.final_iteration.input
+    final_input    = module.interpreter.final_input
     final_tape_ptr = module.interpreter.final_iteration.tape_ptr
     final_code_ptr = module.interpreter.final_iteration.code_ptr
     steps_taken    = module.interpreter.final_iteration.steps_taken
@@ -82,12 +82,16 @@ locals {
     if i == 0 ? true : (local.chars[i] == "[" || local.chars[i] == "]" || local.chars[i] != local.chars[i - 1])
   ]
 
-  groups = [
+  groups = flatten([
     for i, index in local.start_indices :
     [local.chars[index], (i == length(local.start_indices) - 1 ? length(local.chars) : local.start_indices[i + 1]) - index]
-  ]
+  ])
 }
 
-output "trest" {
-  value = local.groups
-}
+# output "trest" {
+#   value = local.groups
+# }
+
+# output "trest2" {
+#   value = module.bracket_lut.lut
+# }
