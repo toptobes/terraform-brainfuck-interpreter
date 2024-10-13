@@ -14,7 +14,7 @@ optsParser = info
   (helper
     <*> programOptions)
   (fullDesc
-    <> header   "terrafuck — because why the terrafuck not?"
+    <> header "terrafuck — because why the terrafuck not?"
     <> progDesc 
       (  "Script to generate a Brainfuck interpreter in Terraform. "
       <> "Because Terraform does not for allow boundless recursion or anything of that sort, this actually "

@@ -32,14 +32,18 @@ variable "output" {
   description = "The initial output string (not sure why you wouldn't just leave it blank but whatever)"
 }
 
+locals {
+  code = join("", regexall("[.,<>+\\-[\\]]+", var.code))
+}
+
 module "bracket_lut" {
   source = "./modules/bracket_lut"
-  code   = var.code
+  code   = local.code
 }
 
 module "interpreter" {
   source      = "./modules/interpreter"
-  code        = var.code
+  code        = local.code
   bracket_lut = module.bracket_lut.lut
   code_ptr    = var.code_ptr
   input       = var.input
@@ -67,4 +71,23 @@ output "debug" {
     bracket_lut    = module.bracket_lut.lut
   }
   description = "Various values that may be useful for debugging any terrafucked-up output"
+}
+
+locals {
+  chars = split("", local.code)
+
+  start_indices = [
+    for i, _ in local.chars :
+    i
+    if i == 0 ? true : (local.chars[i] == "[" || local.chars[i] == "]" || local.chars[i] != local.chars[i - 1])
+  ]
+
+  groups = [
+    for i, index in local.start_indices :
+    [local.chars[index], (i == length(local.start_indices) - 1 ? length(local.chars) : local.start_indices[i + 1]) - index]
+  ]
+}
+
+output "trest" {
+  value = local.groups
 }
