@@ -3,12 +3,20 @@ module TFGen (genTfFiles) where
 import Data.Text qualified as T
 import FileActions
 import Options
+import Interpreter
 
 genTfFiles :: Options -> FileActionF ()
 genTfFiles opts = do
   when opts.force $ do
     deleteDir opts.outDir
-  mkRoot opts opts.outDir
+
+  let opts' = case opts.code of
+       Just code -> case eval code (fromMaybe "" opts.input) of
+        Left err  -> error $ show err
+        Right res -> opts { maxInterpSteps = res.interpSteps, maxLUTGenSteps = res.lutGenSteps, tapeLength = Just res.maxTapeLen }
+       Nothing -> opts
+
+  mkRoot opts'
 
 generationNotice :: Text
 generationNotice = ""
@@ -20,9 +28,9 @@ generationNotice = ""
   <> "# all of this by hand each time the CLI is called or he won't feed me) #\n"
   <> "########################################################################\n"
 
-mkRoot :: Options -> FilePath -> FileActionF ()
-mkRoot opts dirName = do
-  entryTemplate <- useTemplateFile "root/main.tf" []
+mkRoot :: Options -> FileActionF ()
+mkRoot opts = do
+  entryTemplate <- mkRootFileTemplate opts
   let entryFile = FileDesc "main.tf" (generationNotice <> "\n" <> entryTemplate)
   
   dirs <- sequence
@@ -30,7 +38,18 @@ mkRoot opts dirName = do
     , mkTemplateModule "bracket_lut" opts.maxLUTGenSteps
     ]
 
-  createDir $ DirDesc dirName [entryFile] dirs
+  createDir $ DirDesc opts.outDir [entryFile] dirs
+
+mkRootFileTemplate :: Options -> FileActionF Text
+mkRootFileTemplate opts = useTemplateFile "root/main.tf" 
+  [ ("maybe_default_tape", maybeDefaultTape)
+  , ("maybe_default_code", maybeDefaultCode)
+  , ("default_input", defaultInput)
+  ]
+  where 
+    maybeDefaultTape = maybe "" (\l -> "\n  default     = " <> show (replicate @Int l 0)) opts.tapeLength
+    maybeDefaultCode = maybe "" (\c -> "\n  default     = " <> show c) opts.code
+    defaultInput = show $ fromMaybe "" opts.input
 
 mkTemplateModule :: FilePath -> Int -> FileActionF DirDesc
 mkTemplateModule name size = do

@@ -17,6 +17,7 @@ executable terrafuck
   main-is: Main.hs
   other-modules:
       FileActions
+      Interpreter
       Options
       TFGen
       Paths_terrafuck

@@ -1,35 +1,35 @@
 variable "code" {
   type        = string
-  description = "The actual brainfuck code to interpret (e.g. \">+[+[<]>>+<+]>.\")"
+  description = "The actual brainfuck code to interpret (e.g. \">+[+[<]>>+<+]>.\")"\{maybe_default_code}
 }
 
 variable "tape" {
   type        = list(number)
-  description = "Brainfuck's memory tape (e.g. [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])"
+  description = "Brainfuck's memory tape (e.g. [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])"\{maybe_default_tape}
 }
 
 variable "input" {
   type        = string
-  default     = ""
   description = "The input to pull from when the ',' command is used (e.g. \"Hi!\"). Must correspond to a byte between 0-255"
+  default     = \{default_input}
 }
 
 variable "tape_ptr" {
   type        = number
-  default     = 0
   description = "The initial starting index in the memory tape"
+  default     = 0
 }
 
 variable "code_ptr" {
   type        = number
-  default     = 0
   description = "The initial starting index in the brainfuck code"
+  default     = 0
 }
 
 variable "output" {
   type        = string
-  default     = ""
   description = "The initial output string (not sure why you wouldn't just leave it blank but whatever)"
+  default     = ""
 }
 
 locals {
