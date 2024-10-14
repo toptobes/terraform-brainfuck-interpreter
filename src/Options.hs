@@ -27,7 +27,7 @@ optsParser = info
     <> progDesc
       (  "Script to generate a Brainfuck interpreter in Terraform. "
       <> "Because Terraform does not for allow boundless recursion or anything of that sort, this actually "
-      <> "generates a \"limited\" form of Brainfuck where you must specify the max # of steps the pure Terraform "
+      <> "generates a \"bounded\" form of Brainfuck where you must specify the max # of steps the pure Terraform "
       <> "intepreter may make."
       ))
 

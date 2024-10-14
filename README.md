@@ -1,6 +1,6 @@
 # Terrafuck
 
-A (ˡᶦᵐᶦᵗᵉᵈ) Brainfuck interpreter that works in pure Terraform (no local-exec cheap-outs or anything).
+A (ᵇᵒᵘⁿᵈᵉᵈ) Brainfuck interpreter that works in pure Terraform (no `local-exec` cheap-outs or anything).
 
 ## How it works
 
@@ -17,7 +17,7 @@ The short answer is yes. For a longer answer, you can click on the dropdown belo
 <details>
 <summary>Click for the longer answer</summary>
 <br>
-yeah.
+yes, but shut up.
 </details>
 
 But this is the best we can do given that Terraform doesn't support mutable state or provide any
@@ -63,8 +63,30 @@ terraform apply -var-file=.tfvars -auto-approve
 
 It may take a minute or two to run on default max-iteration settings.
 
-### Building the CLI for yourself
+### Using the CLI for yourself
 
-![](https://media1.tenor.com/m/LUOHdYdROZQAAAAC/just-do-it-shia-la-beouf.gif)
+There's two different ways to use the CLI (do `terrafuck --help` for all possible options):
 
-ᵗʰᶦˢ ˢᵉᶜᵗᶦᵒⁿ ᵗᵒᵈᵒ
+```sh
+cabal run terrafuck -- [-i|--max-iteration-steps N] [-l|--max-lut-gen-steps N] [-t|--default-tape-size N]
+```
+
+This will generate the terrafuck interpreter using the explict parameters you provide it:
+- `max-iteration-steps`: The number of "steps", or "instructions" the interpreter may take
+- `max-lut-gen-steps`: The number of steps the bracket LUT generator may take
+  - Equiv. to the number of `[]` pairs in the BF code * 2 
+  - (e.g. `>[+]`) would need `2` steps
+- `default-tape-size`: The default length of the memory tape to use
+  - If provided, it'll be a list of zeros of length `N`
+  - If not provided, you'll manually need to pass in a tape when running the terrafuck interpreter
+
+```sh
+cabal run terrafuck -- <-c|--code BRAINFUCK_CODE> [-i|--input BRAINFUCK_INPUT]
+```
+
+This will automagically find the exact numbers for each of the aftermentioned parameters to provide
+a terrafuck interpreter best suited for the specific piece of Brainfuck code you used to generate it.
+
+If you use this method, the variables will all be set to suitable defaults, so all you have to do is
+`terraform plan`, and it'll use the code & input you provided to the `terrafuck` CLI (though you can
+still override them as normal using normal Terraform input variables)
