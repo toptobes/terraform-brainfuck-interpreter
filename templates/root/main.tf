@@ -34,6 +34,19 @@ variable "output" {
 
 locals {
   code = replace(replace(join("", regexall("[.,<>+\\-[\\]]+", var.code)), "[+]", "0"), "[-]", "0")
+
+  chars = split("", local.code)
+
+  start_indices = [
+    for i, _ in local.chars :
+    i
+    if i == 0 ? true : (local.chars[i] == "[" || local.chars[i] == "]" || local.chars[i] != local.chars[i - 1])
+  ]
+
+  groups = flatten([
+    for i, index in local.start_indices :
+    [local.chars[index], (i == length(local.start_indices) - 1 ? length(local.chars) : local.start_indices[i + 1]) - index]
+  ])
 }
 
 module "bracket_lut" {
@@ -71,19 +84,4 @@ output "debug" {
     bracket_lut    = module.bracket_lut.lut
   }
   description = "Various values that may be useful for debugging any terrafucked-up output"
-}
-
-locals {
-  chars = split("", local.code)
-
-  start_indices = [
-    for i, _ in local.chars :
-    i
-    if i == 0 ? true : (local.chars[i] == "[" || local.chars[i] == "]" || local.chars[i] != local.chars[i - 1])
-  ]
-
-  groups = flatten([
-    for i, index in local.start_indices :
-    [local.chars[index], (i == length(local.start_indices) - 1 ? length(local.chars) : local.start_indices[i + 1]) - index]
-  ])
 }

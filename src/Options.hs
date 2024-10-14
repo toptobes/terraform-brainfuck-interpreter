@@ -9,15 +9,15 @@ data Options = Options
    }
 
 data CodeGenConfig
-   = ManualConfig
-     { maxInterpSteps :: !Int
-     , maxLUTGenSteps :: !Int
-     , tapeLength     :: !(Maybe Int)
-     }
+  = ManualConfig
+    { maxInterpSteps :: !Int
+    , maxLUTGenSteps :: !Int
+    , tapeLength     :: !(Maybe Int)
+    }
   | ConfigFromCode
-     { code   :: !Text
-     , input  :: !(Maybe Text)
-     }
+    { code   :: !Text
+    , input  :: !(Maybe Text)
+    }
 
 optsParser :: ParserInfo Options
 optsParser = info
@@ -33,9 +33,9 @@ optsParser = info
 
 programOpts :: Parser Options
 programOpts = Options 
-   <$> (programOptsFromArgs <|> programOptsFromCode)
-   <*> outDirPathParser
-   <*> cleanOutDirParser
+  <$> (programOptsFromArgs <|> programOptsFromCode)
+  <*> outDirPathParser
+  <*> cleanOutDirParser
 
 programOptsFromArgs :: Parser CodeGenConfig
 programOptsFromArgs = ManualConfig

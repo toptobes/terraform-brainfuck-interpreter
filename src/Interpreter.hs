@@ -27,7 +27,7 @@ slidel desc n c
     (l, x:r) -> pure $ Cursor l x (r ++ c.current : c.right) (c.index - n)
 
 slider :: Int -> Cursor a -> Cursor a
-slider n c = case splitAt n (c.current:c.right) of
+slider n c = case splitAt n (c.current : c.right) of
     (_, [])  -> c
     (l, x:r) -> Cursor (c.left ++ l) x r (c.index + n)
 
