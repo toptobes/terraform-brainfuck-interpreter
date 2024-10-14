@@ -11,5 +11,5 @@ output "final_iteration" {
 }
 
 output "final_input" {
-  value = local.input_\{pi}
+  value = local.code_\{pi}.input
 }
