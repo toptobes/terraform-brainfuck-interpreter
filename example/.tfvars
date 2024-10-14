@@ -5,4 +5,4 @@
 code = "++>+++++[<+>-]++++++++[<++++++>-]<."
 
 # Basic tape with 10 cells (you don't really need more in most cases)
-tape = [0, 0]
+tape = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
