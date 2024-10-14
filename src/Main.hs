@@ -6,4 +6,4 @@ import TFGen
 import Options.Applicative
 
 main :: IO ()
-main = customExecParser (prefs showHelpOnEmpty) optsParser >>= runFileActions . genTfFiles
+main = customExecParser (prefs showHelpOnEmpty) optsParser >>= runFileActions . genTfFiles >>= putTextLn

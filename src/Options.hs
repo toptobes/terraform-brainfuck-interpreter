@@ -3,19 +3,25 @@ module Options where
 import Options.Applicative
 
 data Options = Options
-  { maxInterpSteps :: !Int
-  , maxLUTGenSteps :: !Int
-  , tapeLength     :: !(Maybe Int)
-  , outDir :: !FilePath
-  , code   :: !(Maybe String)
-  , input  :: !(Maybe String)
-  , force  :: !Bool
-  }
+   { config :: !CodeGenConfig
+   , outDir :: !FilePath
+   , clean  :: !Bool
+   }
+
+data CodeGenConfig
+   = ManualConfig
+     { maxInterpSteps :: !Int
+     , maxLUTGenSteps :: !Int
+     , tapeLength     :: !(Maybe Int)
+     }
+  | ConfigFromCode
+     { code   :: !String
+     , input  :: !(Maybe String)
+     }
 
 optsParser :: ParserInfo Options
 optsParser = info
-  (helper
-    <*> programOptions)
+  (helper <*> programOpts)
   (fullDesc
     <> header "terrafuck — because why the terrafuck not?"
     <> progDesc
@@ -25,49 +31,62 @@ optsParser = info
       <> "intepreter may make."
       ))
 
-programOptions :: Parser Options
-programOptions = Options
+programOpts :: Parser Options
+programOpts = Options 
+   <$> (programOptsFromArgs <|> programOptsFromCode)
+   <*> outDirPathParser
+   <*> cleanOutDirParser
+
+programOptsFromArgs :: Parser CodeGenConfig
+programOptsFromArgs = ManualConfig
   <$> option auto
-     (  long "max-steps"
+     (  long "interp-steps"
      <> short 'i'
      <> metavar "N"
      <> value 2000
      <> help "Number of interations the brainfuck interpreter may perform (default 2000)"
      )
   <*> option auto
-     (  long "max-lut-gen-steps"
+     (  long "lut-gen-steps"
      <> short 'l'
      <> metavar "N"
      <> value 10
      <> help "Number of interations the bracket LUT generator may perform (should be >= to the # of [s and ]s in your brainfuck) (default 10)"
      )
   <*> optional (option auto
-     (  long "tape-length"
+     (  long "default-tape-len"
      <> short 't'
      <> metavar "N"
      <> help "Default length of the brainfuck tape if not explicitly set as a tfvar"
      ))
-  <*> strOption
-     (  long "out"
-     <> metavar "DIRECTORY"
-     <> short 'o'
-     <> value "out"
-     <> help "Directory to output the terraform files/modules (default \"out\")"
-     )
-  <*> optional (strOption
+
+programOptsFromCode :: Parser CodeGenConfig
+programOptsFromCode = ConfigFromCode
+  <$> strOption
      (  long "code"
      <> metavar "CODE"
      <> short 'c'
-     <> help "Brainfuck code that will be run"
-     ))
+     <> help "Brainfuck code to infer the number of steps/tape length to use"
+     )
   <*> optional (strOption
      (  long "input"
      <> metavar "INPUT"
      <> short 'i'
      <> help "Input for the brainfuck code that will be run"
      ))
-  <*> switch
-     (  long "clean"
-     <> short 'c'
-     <> help "Whether to delete and recreate the output directory on generation"
-     )
+
+outDirPathParser :: Parser FilePath
+outDirPathParser = strOption
+  (  long "out"
+  <> metavar "DIRECTORY"
+  <> short 'o'
+  <> value "out"
+  <> help "Directory to output the terraform files/modules (default \"out\")"
+  )
+
+cleanOutDirParser :: Parser Bool
+cleanOutDirParser = switch
+  (  long "clean"
+  <> short 'c'
+  <> help "Whether to delete and recreate the output directory on generation"
+  )

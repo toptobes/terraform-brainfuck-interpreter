@@ -6,19 +6,19 @@ import Data.List (lookup)
 type BracketLUT = [(Int, Int)]
 type Instruction = (Char, Int)
 
-newtype InputError = InputError String
+newtype InputError = InputError Text
   deriving newtype (Show, IsString)
 
 type Attempt a = Either InputError a
 
 data Cursor a = Cursor
-  { left    :: [a]
-  , current :: a
-  , right   :: [a]
-  , index   :: Int
+  { left    :: ![a]
+  , current ::  !a
+  , right   :: ![a]
+  , index   :: !Int
   } deriving (Show)
 
-slidel :: String -> Int -> Cursor a -> Attempt (Cursor a)
+slidel :: Text -> Int -> Cursor a -> Attempt (Cursor a)
 slidel desc n c
   | n > c.index = Left . InputError $ desc <> " cursor underflow"
   | otherwise = case splitAt (c.index - n) c.left of
@@ -126,8 +126,8 @@ genBracketLUT code = go [] [] 0 code <&> \lut' -> lut' <> map swap lut' where
   go [] acc _ [] = pure acc
   go _  _   _ [] = Left "Unmatched opening bracket"
   go stack acc i (c:cs)
-    | fst c == '['  = go (i:stack) acc (i + 1) cs
-    | fst c == ']'  = case stack of
-                    (openIdx:rest) -> go rest ((openIdx, i):acc) (i + 1) cs
-                    []             -> Left "Unmatched closing bracket"
+    | fst c == '[' = go (i:stack) acc (i + 1) cs
+    | fst c == ']' = case stack of
+                   (openIdx:rest) -> go rest ((openIdx, i):acc) (i + 1) cs
+                   []             -> Left "Unmatched closing bracket"
     | otherwise = go stack acc (i + 1) cs
