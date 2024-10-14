@@ -33,7 +33,7 @@ variable "output" {
 }
 
 locals {
-  code = join("", regexall("[.,<>+\\-[\\]]+", var.code))
+  code = replace(replace(join("", regexall("[.,<>+\\-[\\]]+", var.code)), "[+]", "0"), "[-]", "0")
 }
 
 module "bracket_lut" {
@@ -87,11 +87,3 @@ locals {
     [local.chars[index], (i == length(local.start_indices) - 1 ? length(local.chars) : local.start_indices[i + 1]) - index]
   ])
 }
-
-# output "trest" {
-#   value = local.groups
-# }
-
-# output "trest2" {
-#   value = module.bracket_lut.lut
-# }

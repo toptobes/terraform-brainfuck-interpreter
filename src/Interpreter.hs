@@ -2,6 +2,7 @@ module Interpreter where
 
 import qualified Data.List.NonEmpty as NE
 import Data.List (lookup)
+import qualified Data.Text as T
 
 type BracketLUT = [(Int, Int)]
 type Instruction = (Char, Int)
@@ -50,19 +51,19 @@ data EvalResult = EvalResult
   , result      :: !String
   } deriving (Show)
 
-eval :: String -> String -> Attempt EvalResult
+eval :: Text -> Text -> Attempt EvalResult
 eval code input = do
-  code' <- clump code
+  code' <- clump . toString . declutter $ code
   lut <- genBracketLUT $ NE.toList code'
 
   res <- eval' EvalState
     { tape       = Cursor [] 0 (repeat 0) 0
     , code       = Cursor [] (head code') (tail code') 0
     , brackets   = lut
-    , input      = input
+    , input      = toString input
     , output     = ""
     , numSteps   = 0
-    , maxTapeLen = 0
+    , maxTapeLen = 1
     }
 
   pure $ EvalResult
@@ -106,7 +107,8 @@ eval' estate = do
           code' <- slidel "Code ([)" (estate.code.index - open) estate.code
           pure estate { code = code' }
         else pure estate
-    _   -> pure estate { numSteps = estate.numSteps - 1 }
+    '0' -> pure estate { tape = modifyCursor (const 0) estate.tape }
+    c -> error $ "Impossible char " <> show c <> " in eval loop"
 
   let next' = advance next
   maybe (pure next) eval' next'
@@ -116,6 +118,9 @@ advance s =
   if not $ null s.code.right
     then Just (slider 1 s.code & \code' -> s { numSteps = s.numSteps + 1, code = code' })
     else Nothing
+
+declutter :: Text -> Text
+declutter = T.replace "[+]" "0" . T.replace "[-]" "0" . T.filter (`T.elem` "+-<>,.[]")
 
 clump :: String -> Attempt (NonEmpty Instruction)
 clump = maybeToRight "Code was empty" . nonEmpty . map (head &&& length) . NE.group

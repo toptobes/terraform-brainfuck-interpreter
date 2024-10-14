@@ -19,7 +19,9 @@ locals {
       local.code_\{i}.code[0] == "-"
         ? [for i, b in local.iter_\{pi}.tape : (i == local.iter_\{pi}.tape_ptr ? (b - local.code_\{i}.code[1] + 256) % 256 : b)] :
       local.code_\{i}.code[0] == ","
-        ? [for i, b in local.iter_\{pi}.tape : (i == local.iter_\{pi}.tape_ptr ? local.ascii_lookup[substr(local.code_\{i}.input, 0, 1)] : b)]
+        ? [for i, b in local.iter_\{pi}.tape : (i == local.iter_\{pi}.tape_ptr ? local.ascii_lookup[substr(local.code_\{i}.input, 0, 1)] : b)] :
+      local.code_\{i}.code[0] == "0"
+        ? [for i, b in local.iter_\{pi}.tape : (i == local.iter_\{pi}.tape_ptr ? 0 : b)]
         : local.iter_\{pi}.tape)
 
     tape_ptr = (

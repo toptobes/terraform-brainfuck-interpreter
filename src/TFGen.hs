@@ -9,8 +9,8 @@ data CombinedOpts = CombinedOpts
   { maxInterpSteps :: !Int
   , maxLUTGenSteps :: !Int
   , tapeLength :: !(Maybe Int)
-  , code   :: !(Maybe String)
-  , input  :: !(Maybe String)
+  , code   :: !(Maybe Text)
+  , input  :: !(Maybe Text)
   , outDir :: !FilePath
   , clean  :: !Bool
   }

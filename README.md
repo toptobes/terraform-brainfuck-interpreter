@@ -1,16 +1,56 @@
 # Terrafuck
 
-A (ᵇᵒᵘⁿᵈᵉᵈ) Brainfuck interpreter that works in pure Terraform (no `local-exec` cheap-outs or anything).
+An optimizing (ᵇᵒᵘⁿᵈᵉᵈ) Brainfuck interpreter that works in pure Terraform (no `local-exec` cheap-outs or anything).
+
+*Disclaimer: the Haskell CLI is there solely for code generation; it does not perform any of the actual Brainfuck
+code interpretation nor optimzation; all of that is done within Terraform itself.*
 
 ## How it works
 
 blood, sweat, and magical tears.
 
-also some light code generation.
+also some light (heavy) code generation (see the `example` directory for the successor to `node_modules`).
 
-(todo: actually add how it works lol, for now you can check out the `example` directory for an idea)
+### It's quite simple, actually
 
-### Isn't this technically cheating?
+It's like a basic Brainfuck interpreter, except instead of a arbitrarily-terminating while loop, it's an extermely
+long unrolled set of instructions, where each next step of the interpreter is represented by a new local variable
+which references the local variable of the previous step.
+
+It's easier to show than tell though. Check out the `example` and `templates` directories for the praxis.
+
+### Optimizations
+
+Now, of course, this leads to a LOT of code, and a LOT of local variables created, which can lead to
+increasingly long interpretation times, which is why the Terrafuck intepreter itself (not the CLI) performs
+some basic initial optimizations to cut down on the number of "steps" that need to be taken.
+
+From my (extremely basic and naive) testing, I believe what is by far the largest bottleneck for performance is
+the number of local variables created, I imagine probably because of the internal dependency chain Terraform has
+to manage?  Whatever the reason, the main goal is to chop down on the # of "steps" taken, no matter what.
+
+#### Non-code regex filtering
+
+All chars not part of Brainfuck instruction set (`+-<>,.[]`) are filtered out using regex to minimize any
+steps that would be wasted stepping through comments
+
+#### Bracket LUT generation
+
+Before any actual interpretation is performed, a bidirectional LUT for the bracket indices is generated to
+make loop jumping extremely efficient
+
+#### Consecutive instruction fusion
+
+All consecutive instructions (aside from brackets, of course) are fused into single "steps".
+
+For example: `>>>++[[-]]....` is (basically) transformed into `>3+2[[-1]].4`
+
+#### Simple zeroing loops optimization
+
+Basic zeroing loops (i.e. `[-]` and `[+]`) will just directly set the memory cell to `0` rather than
+having to waste many, many instructions on looping and decrementing.
+
+### Huh. Isn't this technically cheating?
 
 The short answer is yes. For a longer answer, you can click on the dropdown below though.
 
@@ -72,7 +112,8 @@ cabal run terrafuck -- [-i|--max-iteration-steps N] [-l|--max-lut-gen-steps N] [
 ```
 
 This will generate the terrafuck interpreter using the explict parameters you provide it:
-- `max-iteration-steps`: The number of "steps", or "instructions" the interpreter may take
+- `max-iteration-steps`: The number of "steps" the interpreter may take
+  - Note that this is NOT 1:1 with the interpreted instructions themselves
 - `max-lut-gen-steps`: The number of steps the bracket LUT generator may take
   - Equiv. to the number of `[]` pairs in the BF code * 2 
   - (e.g. `>[+]`) would need `2` steps

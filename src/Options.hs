@@ -15,8 +15,8 @@ data CodeGenConfig
      , tapeLength     :: !(Maybe Int)
      }
   | ConfigFromCode
-     { code   :: !String
-     , input  :: !(Maybe String)
+     { code   :: !Text
+     , input  :: !(Maybe Text)
      }
 
 optsParser :: ParserInfo Options
